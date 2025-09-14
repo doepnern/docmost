@@ -1,5 +1,4 @@
 import { Node, defaultBlockAt, mergeAttributes } from "@tiptap/core";
-import { selectParentNode } from "@tiptap/core/dist/commands";
 import { Selection } from "@tiptap/pm/state";
 
 export interface DetailsSummaryOptions {
@@ -9,7 +8,7 @@ export interface DetailsSummaryOptions {
 export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   name: "detailsSummary",
   group: "block",
-  content: "heading | paragraph",
+  content: "inline*",
   defining: true,
   isolating: true,
   selectable: false,
@@ -22,6 +21,7 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
       },
     };
   },
+
   addOptions() {
     return {
       HTMLAttributes: {},
@@ -34,15 +34,16 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
       },
     ];
   },
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes, node }) {
+    console.log('renderHTML', node.attrs);
     return [
-      "summary",
+      node.attrs.level === 0 ? "summary" : "h" + node.attrs.level,
       mergeAttributes(
-        { "data-type": this.name },
+        { "data-type": this.name, "data-level": node.attrs.level || 0 },
         this.options.HTMLAttributes,
         HTMLAttributes,
       ),
-      0,
+      0
     ];
   },
   addKeyboardShortcuts() {
@@ -50,15 +51,10 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
       Backspace: ({ editor }) => {
         const state = editor.state;
         const selection = state.selection;
-        const anchor = selection.$anchor;
-        if (!anchor || anchor.depth < 1) {
+        if (selection.$anchor.parent.type.name !== this.name) {
           return false;
         }
-        const parent = selection.$anchor.node(selection.$anchor.depth - 1);
-        if (parent.type.name !== this.name) {
-          return false;
-        }
-        if (anchor.parentOffset !== 0) {
+        if (selection.$anchor.parentOffset !== 0) {
           return false;
         }
         return editor.chain().unsetDetails().focus().run();
@@ -68,21 +64,21 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
         const state = editor.state;
 
         const head = state.selection.$head;
-        if (head.node(head.depth - 1).type.name !== this.name) {
+        if (head.parent.type.name !== this.name) {
           return false;
         }
 
         const hasOffset =
           // @ts-ignore
-          view.domAtPos(head.after() + 2).node.offsetParent !== null;
+          view.domAtPos(head.after() + 1).node.offsetParent !== null;
         const findNode = hasOffset
-          ? state.doc.nodeAt(head.after() + 1)
-          : head.node(-3);
+          ? state.doc.nodeAt(head.after())
+          : head.node(-2);
         if (!findNode) {
           return false;
         }
 
-        const indexAfter = hasOffset ? 0 : head.indexAfter(-2);
+        const indexAfter = hasOffset ? 0 : head.indexAfter(-1);
         const nodeType = defaultBlockAt(findNode.contentMatchAt(indexAfter));
         if (
           !nodeType ||
@@ -97,7 +93,7 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
         }
 
         const tr = state.tr;
-        const after = hasOffset ? head.after() + 2 : head.after(-2);
+        const after = hasOffset ? head.after() + 1 : head.after(-1);
         tr.replaceWith(after, after, defaultNode);
         tr.setSelection(Selection.near(tr.doc.resolve(after), 1));
 

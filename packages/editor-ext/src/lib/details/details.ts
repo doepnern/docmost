@@ -162,13 +162,7 @@ export const Details = Node.create<DetailsOptions>({
                 content: [
                   {
                     type: "detailsSummary",
-                    attrs: { level: 0 },
-                    content: [
-                      {
-                        type: level === 0 ? "paragraph" : `heading`,
-                        attrs: level === 0 ? {} : { level },
-                      }
-                    ]
+                    attrs: { level },
                   },
                   {
                     type: "detailsContent",

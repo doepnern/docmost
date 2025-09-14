@@ -137,7 +137,7 @@ export const mainExtensions = [
   Typography,
   TrailingNode,
   GlobalDragHandle.configure({
-    excludedTags: [`[data-type=detailsSummary] > *`],
+    excludedTags: [`[data-type=detailsSummary]`],
   }),
   TextStyle,
   Color,

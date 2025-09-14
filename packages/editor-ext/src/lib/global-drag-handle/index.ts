@@ -78,7 +78,7 @@ function nodeDOMAtCoords(
     .find(
       (elem: Element) =>
         elem.parentElement?.matches?.('.ProseMirror') ||
-        elem.matches(selectors),
+        elem.matches(selectors) && !elem.matches(options.excludedTags.join(', ')),
     );
 }
 function nodePosAtDOM(
@@ -296,12 +296,10 @@ export function DragHandlePlugin(
           const excludedTagList = options.excludedTags
             .concat(['ol', 'ul'])
 
-
+          console.log(node)
           if (
             !(node instanceof Element) ||
-            excludedTagList.some(selector => {
-              return node.matches(selector)
-            }) ||
+            node.matches(excludedTagList.join(', ')) ||
             notDragging
           ) {
             hideDragHandle();

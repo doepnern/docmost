@@ -73,7 +73,9 @@ export const TableOfContents: FC<TableOfContentsProps> = (props) => {
   };
 
   const handleUpdate = () => {
-    const result = recalculateLinks(props.editor?.$nodes("heading"));
+    const result = recalculateLinks(props.editor?.$nodes("heading").concat(props.editor?.$nodes("detailsSummary").filter(
+      (item) => item.node.attrs.level > 0,
+    )).sort((a, b) => a.pos - b.pos) ?? []);
 
     setLinks(result.links);
     setHeadingDOMNodes(result.nodes);
