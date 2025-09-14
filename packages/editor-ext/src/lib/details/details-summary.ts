@@ -1,4 +1,5 @@
 import { Node, defaultBlockAt, mergeAttributes } from "@tiptap/core";
+import { selectParentNode } from "@tiptap/core/dist/commands";
 import { Selection } from "@tiptap/pm/state";
 
 export interface DetailsSummaryOptions {
@@ -8,10 +9,19 @@ export interface DetailsSummaryOptions {
 export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   name: "detailsSummary",
   group: "block",
-  content: "inline*",
+  content: "heading | paragraph",
   defining: true,
   isolating: true,
   selectable: false,
+  addAttributes() {
+    return {
+      level: {
+        default: 0,
+        parseHTML: (e) => e.getAttribute("data-level") ? parseInt(e.getAttribute("data-level") || "0", 10) : 0,
+        renderHTML: (a) => (a.level ? { "data-level": a.level } : {}),
+      },
+    };
+  },
   addOptions() {
     return {
       HTMLAttributes: {},
@@ -40,10 +50,15 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
       Backspace: ({ editor }) => {
         const state = editor.state;
         const selection = state.selection;
-        if (selection.$anchor.parent.type.name !== this.name) {
+        const anchor = selection.$anchor;
+        if (!anchor || anchor.depth < 1) {
           return false;
         }
-        if (selection.$anchor.parentOffset !== 0) {
+        const parent = selection.$anchor.node(selection.$anchor.depth - 1);
+        if (parent.type.name !== this.name) {
+          return false;
+        }
+        if (anchor.parentOffset !== 0) {
           return false;
         }
         return editor.chain().unsetDetails().focus().run();
@@ -53,21 +68,21 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
         const state = editor.state;
 
         const head = state.selection.$head;
-        if (head.parent.type.name !== this.name) {
+        if (head.node(head.depth - 1).type.name !== this.name) {
           return false;
         }
 
         const hasOffset =
           // @ts-ignore
-          view.domAtPos(head.after() + 1).node.offsetParent !== null;
+          view.domAtPos(head.after() + 2).node.offsetParent !== null;
         const findNode = hasOffset
-          ? state.doc.nodeAt(head.after())
-          : head.node(-2);
+          ? state.doc.nodeAt(head.after() + 1)
+          : head.node(-3);
         if (!findNode) {
           return false;
         }
 
-        const indexAfter = hasOffset ? 0 : head.indexAfter(-1);
+        const indexAfter = hasOffset ? 0 : head.indexAfter(-2);
         const nodeType = defaultBlockAt(findNode.contentMatchAt(indexAfter));
         if (
           !nodeType ||
@@ -82,7 +97,7 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
         }
 
         const tr = state.tr;
-        const after = hasOffset ? head.after() + 1 : head.after(-1);
+        const after = hasOffset ? head.after() + 2 : head.after(-2);
         tr.replaceWith(after, after, defaultNode);
         tr.setSelection(Selection.near(tr.doc.resolve(after), 1));
 

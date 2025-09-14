@@ -10,7 +10,7 @@ import { icon, setAttributes } from "../utils";
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     details: {
-      setDetails: () => ReturnType;
+      setDetails: (level?: number) => ReturnType;
       unsetDetails: () => ReturnType;
       toggleDetails: () => ReturnType;
     };
@@ -128,7 +128,7 @@ export const Details = Node.create<DetailsOptions>({
 
   addCommands() {
     return {
-      setDetails: () => {
+      setDetails: (level: number = 0) => {
         return ({ state, chain }) => {
           const range = state.selection.$from.blockRange(state.selection.$to);
           if (!range) {
@@ -162,6 +162,13 @@ export const Details = Node.create<DetailsOptions>({
                 content: [
                   {
                     type: "detailsSummary",
+                    attrs: { level: 0 },
+                    content: [
+                      {
+                        type: level === 0 ? "paragraph" : `heading`,
+                        attrs: level === 0 ? {} : { level },
+                      }
+                    ]
                   },
                   {
                     type: "detailsContent",
@@ -202,9 +209,9 @@ export const Details = Node.create<DetailsOptions>({
           };
           const defaultType = state.doc.resolve(range.from).parent.type
             .contentMatch.defaultType;
+
           return chain()
             .insertContentAt(range, [
-              defaultType?.create(null, summary[0].node.content).toJSON(),
               ...(content[0].node.content.toJSON() ?? []),
             ])
             .setTextSelection(range.from + 1)

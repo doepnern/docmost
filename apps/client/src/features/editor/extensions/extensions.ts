@@ -40,6 +40,7 @@ import {
   Mention,
   Subpages,
   TableDndExtension,
+  GlobalDragHandle
 } from "@docmost/editor-ext";
 import {
   randomElement,
@@ -48,7 +49,6 @@ import {
 import { IUser } from "@/features/user/types/user.types.ts";
 import MathInlineView from "@/features/editor/components/math/math-inline.tsx";
 import MathBlockView from "@/features/editor/components/math/math-block.tsx";
-import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import { Youtube } from "@tiptap/extension-youtube";
 import ImageView from "@/features/editor/components/image/image-view.tsx";
 import CalloutView from "@/features/editor/components/callout/callout-view.tsx";
@@ -110,9 +110,9 @@ export const mainExtensions = [
       if (node.type.name === "heading") {
         return i18n.t("Heading {{level}}", { level: node.attrs.level });
       }
-      if (node.type.name === "detailsSummary") {
-        return i18n.t("Toggle title");
-      }
+      // if (node.type.name === "detailsSummary") {
+      //   return i18n.t("Toggle title");
+      // }
       if (node.type.name === "paragraph") {
         return i18n.t('Write anything. Enter "/" for commands');
       }
@@ -136,7 +136,9 @@ export const mainExtensions = [
   }),
   Typography,
   TrailingNode,
-  GlobalDragHandle,
+  GlobalDragHandle.configure({
+    excludedTags: [`[data-type=detailsSummary] > *`],
+  }),
   TextStyle,
   Color,
   SlashCommand,

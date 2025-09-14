@@ -252,6 +252,30 @@ const CommandGroups: SlashMenuGroupedItemsType = {
         editor.chain().focus().deleteRange(range).setDetails().run(),
     },
     {
+      title: "Heading 1 - Toggle block",
+      description: "Insert collapsible block.",
+      searchTerms: ["collapsible", "block", "toggle", "details", "expand"],
+      icon: IconCaretRightFilled,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setDetails(1).run(),
+    },
+    {
+      title: "Heading 2 - Toggle block",
+      description: "Insert collapsible block.",
+      searchTerms: ["collapsible", "block", "toggle", "details", "expand"],
+      icon: IconCaretRightFilled,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setDetails(2).run(),
+    },
+    {
+      title: "Heading 3 - Toggle block",
+      description: "Insert collapsible block.",
+      searchTerms: ["collapsible", "block", "toggle", "details", "expand"],
+      icon: IconCaretRightFilled,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setDetails(3).run(),
+    },
+    {
       title: "Callout",
       description: "Insert callout notice.",
       searchTerms: [
