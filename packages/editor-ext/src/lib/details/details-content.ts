@@ -12,7 +12,6 @@ export interface DetailsContentOptions {
 
 export const DetailsContent = Node.create<DetailsContentOptions>({
   name: "detailsContent",
-  group: "block",
   content: "block*",
   defining: true,
   selectable: false,
