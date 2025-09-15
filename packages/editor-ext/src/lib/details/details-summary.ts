@@ -7,7 +7,6 @@ export interface DetailsSummaryOptions {
 
 export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   name: "detailsSummary",
-  group: "block",
   content: "inline*",
   defining: true,
   isolating: true,
@@ -30,16 +29,15 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   parseHTML() {
     return [
       {
-        tag: "summary",
+        tag: `summary[data-type='${this.name}']`,
         attrs: { level: 0 },
-        ["data-type"]: this.name
       },
-      ...[1, 2, 3, 4, 5, 6].map((level) => ({ tag: `h${level}`, attrs: { level }, ["data-type"]: this.name })),
+      ...[1, 2, 3, 4, 5, 6].map((level) => ({ tag: `h${level}[data-type='${this.name}']`, attrs: { level } })),
     ];
   },
   renderHTML({ HTMLAttributes, node }) {
     return [
-      node.attrs.level === 0 ? "summary" : "h" + node.attrs.level,
+      node.attrs.level === 0 ? "summary" : `h${node.attrs.level}`,
       mergeAttributes(
         { "data-type": this.name },
         this.options.HTMLAttributes,
