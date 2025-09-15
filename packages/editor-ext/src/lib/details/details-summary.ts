@@ -12,18 +12,18 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
   defining: true,
   isolating: true,
   selectable: false,
+  priority: 101,
   addAttributes() {
     return {
       level: {
         default: 0,
-        parseHTML: (e) => e.getAttribute("data-level") ? parseInt(e.getAttribute("data-level") || "0", 10) : 0,
-        renderHTML: (a) => (a.level ? { "data-level": a.level } : {}),
+        rendered: false,
       },
     };
   },
-
   addOptions() {
     return {
+      levels: [0, 1, 2, 3, 4, 5, 6],
       HTMLAttributes: {},
     };
   },
@@ -31,15 +31,17 @@ export const DetailsSummary = Node.create<DetailsSummaryOptions>({
     return [
       {
         tag: "summary",
+        attrs: { level: 0 },
+        ["data-type"]: this.name
       },
+      ...[1, 2, 3, 4, 5, 6].map((level) => ({ tag: `h${level}`, attrs: { level }, ["data-type"]: this.name })),
     ];
   },
   renderHTML({ HTMLAttributes, node }) {
-    console.log('renderHTML', node.attrs);
     return [
       node.attrs.level === 0 ? "summary" : "h" + node.attrs.level,
       mergeAttributes(
-        { "data-type": this.name, "data-level": node.attrs.level || 0 },
+        { "data-type": this.name },
         this.options.HTMLAttributes,
         HTMLAttributes,
       ),
