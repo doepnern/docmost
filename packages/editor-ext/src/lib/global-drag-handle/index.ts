@@ -56,11 +56,13 @@ function absoluteRect(node: Element) {
   };
 }
 
-function nodeDOMAtCoords(
-  coords: { x: number; y: number },
+function matchesSelectors(
+  elem: {
+    matches: (selectors: string) => boolean;
+  },
   options: GlobalDragHandleOptions,
-) {
-  const selectors = [
+): boolean {
+  return elem.matches([
     'li',
     'p:not(:first-child)',
     'pre',
@@ -72,33 +74,24 @@ function nodeDOMAtCoords(
     'h5',
     'h6',
     ...options.customNodes.map((node) => `[data-type=${node}]`),
-  ].join(', ');
+  ].join(', ')) && !elem.matches(["li>p", ...options.excludedTags].join(', '));
+}
+
+
+function nodeDOMAtCoords(
+  coords: { x: number; y: number },
+  options: GlobalDragHandleOptions,
+) {
   return document
     .elementsFromPoint(coords.x, coords.y)
     .find(
       (elem: Element) =>
         elem.parentElement?.matches?.('.ProseMirror') ||
-        elem.matches(selectors) && !elem.matches(options.excludedTags.join(', ')),
+        matchesSelectors(elem, options)
     );
 }
-function nodePosAtDOM(
-  node: Element,
-  view: EditorView,
-  options: GlobalDragHandleOptions,
-) {
-  const boundingRect = node.getBoundingClientRect();
 
-  return view.posAtCoords({
-    left: boundingRect.left + 50 + options.dragHandleWidth,
-    top: boundingRect.top + 1,
-  })?.inside;
-}
 
-function calcNodePos(pos: number, view: EditorView) {
-  const $pos = view.state.doc.resolve(pos);
-  if ($pos.depth > 1) return $pos.before($pos.depth);
-  return pos;
-}
 
 export function DragHandlePlugin(
   options: GlobalDragHandleOptions & { pluginKey: string },
@@ -119,14 +112,12 @@ export function DragHandlePlugin(
 
     if (!(node instanceof Element)) return;
 
-    let draggedNodePos = nodePosAtDOM(node, view, options);
+    let draggedNodePos = view.posAtDOM(node, 0);
     if (draggedNodePos == null || draggedNodePos < 0) return;
-    draggedNodePos = calcNodePos(draggedNodePos, view);
-
     const { from, to } = view.state.selection;
     const diff = from - to;
 
-    const fromSelectionPos = calcNodePos(from, view);
+    const fromSelectionPos = from;
     let differentNodeSelected = false;
 
     const nodePos = view.state.doc.resolve(fromSelectionPos);
@@ -159,6 +150,13 @@ export function DragHandlePlugin(
       );
     } else {
       selection = NodeSelection.create(view.state.doc, draggedNodePos);
+      let domNode: any = view.nodeDOM(selection.from);
+      while (domNode && "matches" in domNode && !matchesSelectors(domNode, options)) {
+        const parentPos = view.state.doc.resolve(selection.from).before();
+        if (parentPos === 0) break;
+        selection = NodeSelection.create(view.state.doc, parentPos);
+        domNode = view.nodeDOM(selection.from);
+      }
 
       // if inline node is selected, e.g mention -> go to the parent node to select the whole node
       // if table row is selected, go to the parent node to select the whole node
@@ -296,7 +294,6 @@ export function DragHandlePlugin(
           const excludedTagList = options.excludedTags
             .concat(['ol', 'ul'])
 
-          console.log(node)
           if (
             !(node instanceof Element) ||
             node.matches(excludedTagList.join(', ')) ||
