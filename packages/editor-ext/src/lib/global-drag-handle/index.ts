@@ -153,20 +153,11 @@ export function DragHandlePlugin(
       let domNode: any = view.nodeDOM(selection.from);
       while (domNode && "matches" in domNode && !matchesSelectors(domNode, options)) {
         const parentPos = view.state.doc.resolve(selection.from).before();
-        if (parentPos === 0) break;
         selection = NodeSelection.create(view.state.doc, parentPos);
+        if ((selection as NodeSelection).node.type.name === 'doc') return;
         domNode = view.nodeDOM(selection.from);
       }
 
-      // if inline node is selected, e.g mention -> go to the parent node to select the whole node
-      // if table row is selected, go to the parent node to select the whole node
-      if (
-        (selection as NodeSelection).node.type.isInline ||
-        (selection as NodeSelection).node.type.name === 'tableRow'
-      ) {
-        let $pos = view.state.doc.resolve(selection.from);
-        selection = NodeSelection.create(view.state.doc, $pos.before());
-      }
     }
     view.dispatch(view.state.tr.setSelection(selection));
 
@@ -177,10 +168,8 @@ export function DragHandlePlugin(
     ) {
       listType = node.parentElement!.tagName;
     }
-
-    const slice = view.state.selection.content();
+    const slice = new Slice(Fragment.from((view.state.selection as NodeSelection).node), 0, 0);
     const { dom, text } = serializeForClipboard(view, slice);
-
     event.dataTransfer.clearData();
     event.dataTransfer.setData('text/html', dom.innerHTML);
     event.dataTransfer.setData('text/plain', text);
