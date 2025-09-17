@@ -1,12 +1,8 @@
 .ProseMirror {
-  background-color: light-dark(
-    var(--mantine-color-white),
-    var(--mantine-color-dark-7)
-  );
-  color: light-dark(
-    var(--mantine-color-default-color),
-    var(--mantine-color-dark-0)
-  );
+  background-color: light-dark(var(--mantine-color-white),
+      var(--mantine-color-dark-7));
+  color: light-dark(var(--mantine-color-default-color),
+      var(--mantine-color-dark-0));
   font-size: var(--mantine-font-size-md);
   line-height: var(--mantine-line-height-xl);
   font-weight: 400;
@@ -24,7 +20,7 @@
     padding: 0;
   }
 
-  > * + * {
+  >*+* {
     margin-top: 0.75em;
   }
 
@@ -61,21 +57,22 @@
   }
 
   code {
-    background-color: light-dark(
-      var(--mantine-color-gray-0),
-      var(--mantine-color-dark-8)
-    );
+    background-color: light-dark(var(--mantine-color-gray-0),
+        var(--mantine-color-dark-8));
     color: #616161;
   }
 
   a {
     color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-dark-1));
+
     @mixin light {
       border-bottom: 0.05em solid var(--mantine-color-dark-0);
     }
+
     @mixin dark {
       border-bottom: 0.05em solid var(--mantine-color-dark-2);
     }
+
     /*font-weight: 500; */
     text-decoration: none;
     cursor: pointer;
@@ -85,10 +82,8 @@
     padding-left: 25px;
     padding-right: 25px;
     border-left: 2px solid var(--mantine-color-gray-6);
-    background-color: light-dark(
-      var(--mantine-color-gray-0),
-      var(--mantine-color-dark-8)
-    );
+    background-color: light-dark(var(--mantine-color-gray-0),
+        var(--mantine-color-dark-8));
     margin: 0;
   }
 
@@ -109,8 +104,8 @@
     outline: 2px solid #70cff8;
   }
 
-  & > .react-renderer {
-    margin-top:  var(--mantine-spacing-sm);
+  & .react-renderer {
+    margin-top: var(--mantine-spacing-sm);
     margin-bottom: var(--mantine-spacing-sm);
 
     &:first-child {
@@ -157,6 +152,7 @@
     0% {
       background-color: #ff4d4d;
     }
+
     100% {
       background-color: rgba(255, 215, 0, 0.14);
     }
@@ -204,4 +200,3 @@
 .actionIconGroup {
   background: var(--mantine-color-body);
 }
-
