@@ -67,6 +67,7 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
         isStrike: ctx.editor.isActive("strike"),
         isCode: ctx.editor.isActive("code"),
         isComment: ctx.editor.isActive("comment"),
+        isHighlight: ctx.editor.isActive("highlight")
       };
     },
   });
@@ -104,9 +105,9 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
     },
     {
       name: "Highlight",
-      isActive: () => props.editor.isActive("highlight"),
+      isActive: () => editorState?.isHighlight,
       command: () => props.editor.chain().focus().toggleHighlight().run(),
-      icon: props.editor.isActive("highlight") ? IconHighlightOff : IconHighlight,
+      icon: editorState?.isHighlight ? IconHighlightOff : IconHighlight,
     },
   ];
 
