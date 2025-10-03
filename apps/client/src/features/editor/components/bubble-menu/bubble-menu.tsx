@@ -12,6 +12,8 @@ import {
   IconStrikethrough,
   IconUnderline,
   IconMessage,
+  IconHighlight,
+  IconHighlightOff,
 } from "@tabler/icons-react";
 import clsx from "clsx";
 import classes from "./bubble-menu.module.css";
@@ -80,6 +82,12 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
       isActive: () => props.editor.isActive("code"),
       command: () => props.editor.chain().focus().toggleCode().run(),
       icon: IconCode,
+    },
+    {
+      name: "Highlight",
+      isActive: () => props.editor.isActive("highlight"),
+      command: () => props.editor.chain().focus().toggleHighlight().run(),
+      icon: props.editor.isActive("highlight") ? IconHighlightOff : IconHighlight,
     },
   ];
 
