@@ -212,7 +212,7 @@ export default function PageEditor({
     {
       extensions,
       editable,
-      immediatelyRender: true,
+      // immediatelyRender: true,
       shouldRerenderOnTransaction: true,
       editorProps: {
         scrollThreshold: 80,
@@ -246,6 +246,21 @@ export default function PageEditor({
               if (emojiCommand) {
                 return true;
               }
+            }
+            if ((event.ctrlKey || event.metaKey) && event.code === 'KeyC') {
+              const selected = _view.serializeForClipboard(_view.state.selection.content())
+              selected.dom.style.fontFamily = "Verdana"
+              const clipboardItem = new ClipboardItem({
+                "text/html": new Blob(
+                  [selected.dom.outerHTML],
+                  { type: "text/html" }
+                ),
+                "text/plain": "hello world"
+              });
+              navigator.clipboard.write([clipboardItem]);
+
+              event.preventDefault();
+              return true;
             }
           },
         },
@@ -379,6 +394,7 @@ export default function PageEditor({
       />
     );
   }
+
 
   return (
     <div className="editor-container" style={{ position: "relative" }}>
